@@ -1,3 +1,4 @@
+__all__ = ["build"]
 import tempfile
 import subprocess as sp
 import os.path as pth
@@ -30,22 +31,15 @@ def build(code, lang="c", cflags=None, lflags=None):
     fh.close()
     return lib
 
-if __name__ == '__main__':
+def test_build():
     code = """
     int sum(int a, int b)
     {
-        int acc = 0;
-        for (int i = 0; i < 1000; ++i) {
-            acc += a;
-            acc += b;
-            acc += b;
-            acc += b;
-            acc += b;
-            acc += b;
-        }
-
-        return acc;
+        return a+b;
     }
     """
     lib = build(code,lang="c")
     print lib.sum(1,2)
+
+if __name__ == '__main__':
+    test_build()
