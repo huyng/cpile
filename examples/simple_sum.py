@@ -1,10 +1,10 @@
-import pile
+import cpile
 code = """
 int sum(int a, int b)
 {
     return a+b;
 }
 """
-lib = pile.build(code)
+lib = cpile.build(code)
 
 print lib.sum(1,2)
