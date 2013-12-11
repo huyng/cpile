@@ -29,16 +29,17 @@
 import tempfile
 import subprocess as sp
 import os.path as pth
+import os
 import ctypes as ct
 
 
 def build(code, lang="c", cflags=None, lflags=None):
 
     # create tempfile to host code
-    fh = tempfile.NamedTemporaryFile(suffix=".%s" % lang)
-    fh.write(code)
-    fh.flush()
-    working_dir = pth.dirname(fh.name)
+    working_dir = tempfile.mkdtemp()
+    code_pth = pth.join(working_dir, "code.%s" % lang)
+    with open(code_pth, "w") as fh:
+        fh.write(code)
 
     # build up compilation args
     if lang == "c":
@@ -55,13 +56,22 @@ def build(code, lang="c", cflags=None, lflags=None):
     soname = pth.join(working_dir, "lib.so")
     sp.check_call([cc, "-o", soname, fh.name] + flags)
     lib = ct.cdll.LoadLibrary(soname)
-    fh.close()
+    
+    os.unlink(soname)
     import shutil
     shutil.rmtree(working_dir)
     return lib
 
+def func(code, name="f", lang="c", cflags=None, lflags=None):
+    """
+    Quick utility to build and return a function corresponding to
+    `name`
 
-
+    """    
+    lib = build(code, lang, cflags, lflags)
+    f = getattr(lib, name)
+    return f
+    
 def test_build():
     code = """
     int sum(int a, int b)
@@ -70,7 +80,22 @@ def test_build():
     }
     """
     lib = build(code,lang="c")
-    print lib.sum(1,2)
+    r = lib.sum(1,2)
+    assert r == 3
+    print r
+
+def test_func():
+    code = """
+    int sum(int a, int b)
+    {
+        return a+b;
+    }
+    """
+    sum_c = func(code,name="sum", lang="c")
+    r = sum_c(1,2)
+    assert r == 3
+    print r
 
 if __name__ == '__main__':
     test_build()
+    test_func()
