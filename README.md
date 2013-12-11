@@ -27,5 +27,5 @@ to interactively explore C code and just-in-time compilation.
 You can get even more interactive by compiling functions on the fly:
 
     import cpile
-    f = cpile.func("int f(int a){ return a * a;}")
+    f = cpile.func("int f(int a){ return a * a;}", name="f")
     print f(10)
