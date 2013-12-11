@@ -56,7 +56,11 @@ def build(code, lang="c", cflags=None, lflags=None):
     sp.check_call([cc, "-o", soname, fh.name] + flags)
     lib = ct.cdll.LoadLibrary(soname)
     fh.close()
+    import shutil
+    shutil.rmtree(working_dir)
     return lib
+
+
 
 def test_build():
     code = """
